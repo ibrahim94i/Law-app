@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#C9A84C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مواعيد المحامي">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>مكتب المحاماة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --dark: #0D0D0D;
+  --panel: #161B24;
+  --panel2: #1C2230;
+  --border: rgba(201,168,76,0.2);
+  --text: #E8E0D0;
+  --muted: #7A7060;
+  --success: #4CAF82;
+  --danger: #C94C4C;
+  --info: #4C82C9;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family:'Tajawal',sans-serif;
+  background:var(--dark);
+  color:var(--text);
+  direction:rtl;
+  position:fixed; width:100%; height:100%;
+}
+
+/* ── SCREENS ── */
+.screen { display:none; flex-direction:column; height:100%; }
+.screen.active { display:flex; }
+
+/* ── TOP BAR ── */
+.topbar {
+  padding: calc(var(--safe-top) + 14px) 16px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-back {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; flex-shrink: 0;
+  color: var(--gold);
+}
+.topbar h1 {
+  font-family:'Amiri',serif;
+  font-size: 20px;
+  color: var(--gold-light);
+  flex: 1;
+}
+.topbar .sub { font-size: 11px; color: var(--muted); }
+
+/* ── HOME SCREEN ── */
+.home-header {
+  padding: calc(var(--safe-top) + 20px) 20px 20px;
+  background: linear-gradient(180deg, #0f1219 0%, var(--dark) 100%);
+  flex-shrink: 0;
+}
+.home-logo { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.home-logo-icon {
+  width:48px; height:48px;
+  background: linear-gradient(135deg, var(--gold), #8B6914);
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px;
+}
+.home-logo h2 { font-family:'Amiri',serif; font-size:22px; color:var(--gold); }
+.home-logo p { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.stat-box {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+}
+.stat-box .n { font-size:28px; font-weight:800; color:var(--gold); line-height:1; }
+.stat-box .l { font-size:11px; color:var(--muted); margin-top:4px; }
+
+/* ── SCROLL AREA ── */
+.scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; }
+.scroll::-webkit-scrollbar { display:none; }
+
+/* ── MENU CARDS ── */
+.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.menu-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px 16px;
+  cursor:pointer;
+  transition: all .2s;
+  text-align:center;
+  active: scale(.97);
+}
+.menu-card:active { transform:scale(.97); border-color:var(--gold); }
+.menu-card .icon { font-size:32px; margin-bottom:10px; }
+.menu-card .title { font-size:15px; font-weight:700; color:var(--text); }
+.menu-card .sub { font-size:11px; color:var(--muted); margin-top:3px; }
+.menu-card.primary { background:linear-gradient(135deg, rgba(201,168,76,.15), rgba(139,105,20,.08)); border-color:rgba(201,168,76,.4); }
+
+/* ── TODAY STRIP ── */
+.today-strip {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:16px;
+}
+.today-strip .t { font-size:12px; color:var(--muted); margin-bottom:10px; font-weight:700; letter-spacing:1px; }
+.today-appt {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.today-appt:last-child { border-bottom:none; padding-bottom:0; }
+.today-time { font-size:13px; font-weight:700; color:var(--gold); min-width:40px; }
+.today-info .name { font-size:14px; font-weight:700; }
+.today-info .type { font-size:11px; color:var(--muted); }
+.no-today { font-size:13px; color:var(--muted); text-align:center; padding:8px; }
+
+/* ── FORM ── */
+.form-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; }
+.form-scroll::-webkit-scrollbar { display:none; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600; }
+.field input, .field select, .field textarea {
+  width:100%;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 14px;
+  color:var(--text);
+  font-family:'Tajawal',sans-serif;
+  font-size:15px;
+  outline:none;
+  direction:rtl;
+  -webkit-appearance:none;
+  appearance:none;
+  transition: border-color .2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--gold); }
+.field textarea { resize:none; height:80px; }
+.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M6 8L0 0h12z' fill='%237A7060'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:left 14px center; }
+
+.btn-primary {
+  width:100%;
+  padding:15px;
+  background:linear-gradient(135deg, var(--gold), #8B6914);
+  border:none; border-radius:12px;
+  color:#0D0D0D;
+  font-family:'Tajawal',sans-serif;
+  font-size:16px; font-weight:800;
+  cursor:pointer;
+  margin-top:4px;
+  transition: opacity .2s;
+}
+.btn-primary:active { opacity:.85; }
+
+/* ── APPOINTMENTS LIST ── */
+.filter-row {
+  display:flex; gap:8px; overflow-x:auto; padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  -webkit-overflow-scrolling:touch;
+}
+.filter-row::-webkit-scrollbar { display:none; }
+.filter-chip {
+  flex-shrink:0;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:12px; color:var(--muted);
+  font-family:'Tajawal',sans-serif;
+  cursor:pointer; white-space:nowrap;
+  transition:all .2s;
+}
+.filter-chip.active { background:rgba(201,168,76,.15); border-color:var(--gold); color:var(--gold); }
+
+.search-wrap { padding:12px 16px; flex-shrink:0; }
+.search-inp {
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 14px;
+  color:var(--text);
+  font-family:'Tajawal',sans-serif;
+  font-size:14px; outline:none; direction:rtl;
+}
+
+/* ── APPT CARD ── */
+.appt-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:10px;
+  position:relative;
+  overflow:hidden;
+  animation:fadeUp .25s ease;
+}
+.appt-card::after {
+  content:'';
+  position:absolute;
+  right:0; top:0; bottom:0;
+  width:3px;
+  border-radius:0 14px 14px 0;
+}
+.appt-card.s-pending::after { background:var(--gold); }
+.appt-card.s-confirmed::after { background:var(--success); }
+.appt-card.s-done::after { background:var(--muted); }
+.appt-card.s-cancelled::after { background:var(--danger); }
+
+.appt-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:8px; gap:8px; }
+.appt-name { font-family:'Amiri',serif; font-size:18px; font-weight:700; flex:1; }
+.type-badge {
+  font-size:10px; padding:3px 9px; border-radius:20px; font-weight:700; white-space:nowrap; flex-shrink:0;
+}
+.tb-civil { background:rgba(76,130,201,.15); color:#6EA8E8; border:1px solid rgba(76,130,201,.3); }
+.tb-criminal { background:rgba(201,76,76,.15); color:#E88888; border:1px solid rgba(201,76,76,.3); }
+.tb-commercial { background:rgba(201,168,76,.12); color:var(--gold); border:1px solid var(--border); }
+.tb-family { background:rgba(76,201,130,.12); color:#7EE8AA; border:1px solid rgba(76,201,130,.25); }
+.tb-labor { background:rgba(168,76,201,.12); color:#C87EE8; border:1px solid rgba(168,76,201,.25); }
+
+.appt-meta { display:flex; gap:14px; font-size:12px; color:var(--muted); margin-bottom:8px; flex-wrap:wrap; }
+.appt-meta span { display:flex; align-items:center; gap:4px; }
+.appt-note { font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:8px; margin-top:4px; }
+
+.appt-foot { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+.status-sel {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:12px; color:var(--text);
+  font-family:'Tajawal',sans-serif;
+  outline:none; direction:rtl;
+  -webkit-appearance:none;
+}
+.del-btn {
+  background:rgba(201,76,76,.1);
+  border:1px solid rgba(201,76,76,.25);
+  border-radius:8px;
+  width:34px; height:34px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; cursor:pointer;
+}
+.del-btn:active { background:rgba(201,76,76,.25); }
+
+.empty { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty .e { font-size:48px; margin-bottom:12px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  display:flex;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  padding-bottom: var(--safe-bottom);
+  flex-shrink:0;
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  padding:10px 4px 8px;
+  cursor:pointer; transition:color .2s;
+  color:var(--muted); font-size:10px; gap:3px;
+  background:none; border:none; font-family:'Tajawal',sans-serif;
+}
+.nav-btn .ni { font-size:22px; }
+.nav-btn.active { color:var(--gold); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:calc(var(--safe-bottom) + 80px); left:50%;
+  transform:translateX(-50%) translateY(30px);
+  background:var(--panel2); border:1px solid var(--gold);
+  border-radius:10px; padding:11px 22px;
+  font-size:13px; color:var(--gold);
+  z-index:999; opacity:0; transition:all .3s; white-space:nowrap;
+  pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── INSTALL BANNER ── */
+.install-banner {
+  display:none;
+  background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(139,105,20,.08));
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:14px;
+  align-items:center;
+  gap:12px;
+}
+.install-banner.visible { display:flex; }
+.install-banner p { flex:1; font-size:13px; color:var(--gold-light); }
+.btn-install {
+  background:var(--gold);
+  border:none; border-radius:8px;
+  padding:8px 14px;
+  color:#0D0D0D;
+  font-family:'Tajawal',sans-serif;
+  font-size:12px; font-weight:700;
+  cursor:pointer; white-space:nowrap; flex-shrink:0;
+}
+.close-banner { color:var(--muted); cursor:pointer; font-size:18px; flex-shrink:0; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HOME SCREEN ══ -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="home-logo">
+      <div class="home-logo-icon">⚖️</div>
+      <div>
+        <h2>مكتب المحاماة</h2>
+        <p>نظام إدارة المواعيد</p>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="n" id="h-total">0</div><div class="l">إجمالي</div></div>
+      <div class="stat-box"><div class="n" id="h-today">0</div><div class="l">اليوم</div></div>
+      <div class="stat-box"><div class="n" id="h-pending">0</div><div class="l">بانتظار</div></div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="install-banner" id="install-banner">
+      <span class="close-banner" onclick="document.getElementById('install-banner').classList.remove('visible')">✕</span>
+      <p>ثبّت التطبيق على جوالك للوصول السريع</p>
+      <button class="btn-install" id="btn-install">تثبيت</button>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card primary" onclick="gotoAdd()">
+        <div class="icon">📅</div>
+        <div class="title">موعد جديد</div>
+        <div class="sub">أضف موعد عميل</div>
+      </div>
+      <div class="menu-card" onclick="gotoList('all')">
+        <div class="icon">📋</div>
+        <div class="title">كل المواعيد</div>
+        <div class="sub">عرض وإدارة</div>
+      </div>
+      <div class="menu-card" onclick="gotoList('today')">
+        <div class="icon">🕐</div>
+        <div class="title">مواعيد اليوم</div>
+        <div class="sub">جدول اليوم</div>
+      </div>
+      <div class="menu-card" onclick="gotoList('pending')">
+        <div class="icon">⏳</div>
+        <div class="title">بانتظار</div>
+        <div class="sub">تحتاج متابعة</div>
+      </div>
+    </div>
+
+    <div class="today-strip">
+      <div class="t">▸ أقرب المواعيد اليوم</div>
+      <div id="today-preview"></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="showHome()"><span class="ni">🏠</span>الرئيسية</button>
+    <button class="nav-btn" onclick="gotoAdd()"><span class="ni">➕</span>موعد جديد</button>
+    <button class="nav-btn" onclick="gotoList('all')"><span class="ni">📋</span>المواعيد</button>
+  </div>
+</div>
+
+<!-- ══ ADD SCREEN ══ -->
+<div class="screen" id="screen-add">
+  <div class="topbar">
+    <div class="topbar-back" onclick="showHome()">◀</div>
+    <div>
+      <h1>موعد جديد</h1>
+      <div class="sub">أضف بيانات الموعد</div>
+    </div>
+  </div>
+  <div class="form-scroll">
+    <div class="field"><label>اسم العميل *</label><input type="text" id="f-client" placeholder="مثال: محمد العمري"></div>
+    <div class="field"><label>نوع القضية *</label>
+      <select id="f-type">
+        <option value="">-- اختر --</option>
+        <option value="civil">مدني</option>
+        <option value="criminal">جنائي</option>
+        <option value="commercial">تجاري</option>
+        <option value="family">أسري</option>
+        <option value="labor">عمالي</option>
+      </select>
+    </div>
+    <div class="field"><label>التاريخ *</label><input type="date" id="f-date"></div>
+    <div class="field"><label>الوقت *</label><input type="time" id="f-time"></div>
+    <div class="field"><label>رقم الهاتف</label><input type="tel" id="f-phone" placeholder="05xxxxxxxx"></div>
+    <div class="field"><label>ملاحظات</label><textarea id="f-note" placeholder="تفاصيل القضية أو ملاحظات..."></textarea></div>
+    <button class="btn-primary" onclick="addAppointment()">✓ إضافة الموعد</button>
+  </div>
+</div>
+
+<!-- ══ LIST SCREEN ══ -->
+<div class="screen" id="screen-list">
+  <div class="topbar">
+    <div class="topbar-back" onclick="showHome()">◀</div>
+    <div>
+      <h1 id="list-title">المواعيد</h1>
+      <div class="sub" id="list-count"></div>
+    </div>
+  </div>
+  <div class="filter-row" id="filter-row">
+    <button class="filter-chip active" onclick="setFilter('all',this)">الكل</button>
+    <button class="filter-chip" onclick="setFilter('today',this)">اليوم</button>
+    <button class="filter-chip" onclick="setFilter('pending',this)">⏳ بانتظار</button>
+    <button class="filter-chip" onclick="setFilter('confirmed',this)">✅ مؤكد</button>
+    <button class="filter-chip" onclick="setFilter('done',this)">☑️ منتهي</button>
+    <button class="filter-chip" onclick="setFilter('cancelled',this)">❌ ملغي</button>
+  </div>
+  <div class="search-wrap">
+    <input class="search-inp" type="text" id="search" placeholder="🔍 ابحث عن عميل..." oninput="renderList()">
+  </div>
+  <div class="scroll" style="padding-top:4px" id="list-container"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── DATA ─── */
+let appts = JSON.parse(localStorage.getItem('law_appts_v2') || '[]');
+let filter = 'all';
+let deferredPrompt = null;
+
+const TYPE = { civil:'مدني', criminal:'جنائي', commercial:'تجاري', family:'أسري', labor:'عمالي' };
+const STATUS = { pending:'بانتظار', confirmed:'مؤكد', done:'منتهي', cancelled:'ملغي' };
+const TITLES = { all:'جميع المواعيد', today:'مواعيد اليوم', pending:'بانتظار', confirmed:'المؤكدة', done:'المنتهية', cancelled:'الملغاة' };
+
+function save() {
+  localStorage.setItem('law_appts_v2', JSON.stringify(appts));
+}
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function fmtDate(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('ar-SA',{weekday:'short',month:'short',day:'numeric'});
+}
+
+/* ─── NAVIGATION ─── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showHome() { refreshHome(); showScreen('screen-home'); }
+function gotoAdd() {
+  document.getElementById('f-date').value = today();
+  showScreen('screen-add');
+}
+function gotoList(f) {
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.trim().startsWith(f === 'all' ? 'الكل' : ''));
+  });
+  // Reset active chip
+  document.querySelectorAll('#filter-row .filter-chip').forEach((c,i) => {
+    const map = ['all','today','pending','confirmed','done','cancelled'];
+    c.classList.toggle('active', map[i] === f);
+  });
+  document.getElementById('search').value = '';
+  document.getElementById('list-title').textContent = TITLES[f];
+  renderList();
+  showScreen('screen-list');
+}
+
+/* ─── ADD ─── */
+function addAppointment() {
+  const c = document.getElementById('f-client').value.trim();
+  const t = document.getElementById('f-type').value;
+  const d = document.getElementById('f-date').value;
+  const ti = document.getElementById('f-time').value;
+  const ph = document.getElementById('f-phone').value.trim();
+  const n = document.getElementById('f-note').value.trim();
+  if (!c || !t || !d || !ti) { toast('⚠️ يرجى تعبئة الحقول المطلوبة'); return; }
+  appts.unshift({ id: Date.now(), client:c, type:t, date:d, time:ti, phone:ph, note:n, status:'pending' });
+  save();
+  toast('✅ تم إضافة الموعد');
+  ['f-client','f-phone','f-note'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-type').value='';
+  document.getElementById('f-time').value='';
+  showHome();
+}
+
+/* ─── LIST ─── */
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('list-title').textContent = TITLES[f];
+  renderList();
+}
+
+function renderList() {
+  const q = (document.getElementById('search')?.value||'').trim().toLowerCase();
+  const td = today();
+  let list = appts.filter(a => {
+    if (q && !a.client.toLowerCase().includes(q)) return false;
+    if (filter==='all') return true;
+    if (filter==='today') return a.date===td;
+    return a.status===filter;
+  });
+  document.getElementById('list-count').textContent = list.length + ' موعد';
+  const el = document.getElementById('list-container');
+  if (!list.length) {
+    el.innerHTML='<div class="empty"><div class="e">📂</div><p>لا توجد مواعيد</p></div>'; return;
+  }
+  el.innerHTML = list.map(a=>`
+    <div class="appt-card s-${a.status}">
+      <div class="appt-head">
+        <span class="appt-name">${a.client}</span>
+        <span class="type-badge tb-${a.type}">${TYPE[a.type]}</span>
+      </div>
+      <div class="appt-meta">
+        <span>📅 ${fmtDate(a.date)}</span>
+        <span>🕐 ${a.time}</span>
+        ${a.phone?`<span>📱 ${a.phone}</span>`:''}
+      </div>
+      ${a.note?`<div class="appt-note">📝 ${a.note}</div>`:''}
+      <div class="appt-foot">
+        <select class="status-sel" onchange="changeStatus(${a.id},this.value)">
+          <option value="pending" ${a.status==='pending'?'selected':''}>⏳ بانتظار</option>
+          <option value="confirmed" ${a.status==='confirmed'?'selected':''}>✅ مؤكد</option>
+          <option value="done" ${a.status==='done'?'selected':''}>☑️ منتهي</option>
+          <option value="cancelled" ${a.status==='cancelled'?'selected':''}>❌ ملغي</option>
+        </select>
+        <div class="del-btn" onclick="deleteAppt(${a.id})">🗑️</div>
+      </div>
+    </div>`).join('');
+}
+
+function changeStatus(id, s) {
+  const a = appts.find(x=>x.id===id); if(a){a.status=s; save(); renderList();}
+}
+function deleteAppt(id) {
+  if(!confirm('حذف هذا الموعد؟')) return;
+  appts = appts.filter(x=>x.id!==id); save(); renderList(); toast('🗑️ تم الحذف');
+}
+
+/* ─── HOME REFRESH ─── */
+function refreshHome() {
+  const td = today();
+  document.getElementById('h-total').textContent = appts.length;
+  document.getElementById('h-today').textContent = appts.filter(a=>a.date===td).length;
+  document.getElementById('h-pending').textContent = appts.filter(a=>a.status==='pending').length;
+
+  const todayAppts = appts.filter(a=>a.date===td).sort((a,b)=>a.time.localeCompare(b.time));
+  const el = document.getElementById('today-preview');
+  if (!todayAppts.length) { el.innerHTML='<div class="no-today">لا توجد مواعيد اليوم</div>'; return; }
+  el.innerHTML = todayAppts.slice(0,4).map(a=>`
+    <div class="today-appt">
+      <div class="today-time">${a.time}</div>
+      <div class="today-info">
+        <div class="name">${a.client}</div>
+        <div class="type">${TYPE[a.type]} · ${STATUS[a.status]}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ─── TOAST ─── */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+/* ─── PWA INSTALL ─── */
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('visible');
+});
+document.getElementById('btn-install').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('visible');
+  if (outcome === 'accepted') toast('🎉 تم تثبيت التطبيق!');
+});
+
+/* ─── SERVICE WORKER ─── */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+/* ─── SAMPLE DATA ─── */
+if (!appts.length) {
+  const td = today();
+  const tm = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  appts = [
+    {id:1,client:'أحمد بن سعد العتيبي',type:'civil',date:td,time:'10:00',phone:'0501234567',note:'قضية ملكية عقارية - الجلسة الثانية',status:'confirmed'},
+    {id:2,client:'سارة محمد الزهراني',type:'family',date:td,time:'14:30',phone:'0557654321',note:'استشارة في قضية حضانة',status:'pending'},
+    {id:3,client:'شركة الأفق للتجارة',type:'commercial',date:tm,time:'09:00',phone:'0112345678',note:'نزاع تجاري مع مورد',status:'pending'},
+    {id:4,client:'خالد إبراهيم المطيري',type:'labor',date:td,time:'16:00',phone:'',note:'',status:'done'},
+  ];
+  save();
+}
+
+refreshHome();
+</script>
+</body>
+</html>
